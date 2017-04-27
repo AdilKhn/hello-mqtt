@@ -1,28 +1,26 @@
 var mqtt = require('mqtt')
 
 var client  = mqtt.connect('mqtt://192.168.1.14');
-let client2  = mqtt.connect('mqtt://192.168.1.14');
 beforeAll(() => {
-
-
-  client.on('connect', function () {
+  client.on('connect', ()=> {
     console.log('CONNECT');
     client.publish('presence', 'Hello mqtt')
-    client.end();
   });
-
 });
+
 afterAll(() => {
-  client2.end();
+  console.log('tearing down');
+  client.end();
 });
 
-test('mqtt connect', () => {
-
-  client2.subscribe('presence')
-  client2.on('message', function (topic, message) {
-     // message is Buffer 
+test('mqtt connect', done => {
+  client.subscribe('presence')
+  client.on('message', (topic, message) => {
+    // message is Buffer 
     console.log(message.toString());
-   expect(message.toString()).toBe('foo');
+    expect(message.toString()).toBe('Hello mqtt');
+    client.end();
+    done();
   });
 });
 
